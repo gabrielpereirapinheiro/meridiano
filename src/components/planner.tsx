@@ -140,14 +140,14 @@ export function Planner() {
         ? ["cape", "kruger"]
         : ["cape"]
       : route === "cabo-atenas"
-        ? ["cape", "athens"]
+        ? ["athens", "cape"]
         : ["athens", "oslo"];
 
   return (
     <section id="planejar" className="mx-auto max-w-6xl px-4 py-8 sm:py-14">
       <div className="max-w-2xl">
         <p className="text-xs uppercase tracking-[0.18em] text-muted">A mesa</p>
-        <h2 className="serif mt-2 text-4xl tracking-tight sm:text-5xl">Quatro agentes, uma conta.</h2>
+        <h2 className="serif mt-2 text-4xl tracking-tight sm:text-5xl">Cinco agentes, uma conta.</h2>
         <p className="mt-3 text-lg text-muted">
           Clima, rota, caixa e malha leem os mesmos números. Nada aqui é tarifa presa. É a conta
           para escolher a quinzena antes de abrir o site da cia.

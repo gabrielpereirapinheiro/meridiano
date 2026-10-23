@@ -33,14 +33,14 @@ export const hotelMedianUsd: Record<Exclude<CityId, "kruger">, number[]> = {
   oslo: [175, 173, 190, 186, 220, 236, 200, 236, 250, 238, 194, 180],
 };
 
-/** Chalé de rest camp no Kruger, quarto para duas pessoas, ZAR por noite. Faixa usual de parque, não cotação. */
-export const krugerChaletZar = 3200;
+/** Bangalô de Skukuza, piso publicado 2026/27, ZAR por quarto por noite. “Local bom” soma o fator do hotel. */
+export const krugerChaletZar = 2220;
 /** Lodge privado médio, USD por pessoa por noite, dividindo quarto. Estimativa de planejamento. */
 export const krugerLodgeUsd = 380;
 
 /** Ida e volta em dinheiro, econômica, BSB → destino, curva de planejamento em R$. */
 export const flightRtBrl = {
-  cpt: [12000, 10500, 9000, 7800, 7400, 7000, 7000, 7200, 8200, 8000, 9000, 14000],
+  cpt: [12000, 10500, 9000, 7800, 7400, 7000, 7000, 7200, 8200, 8000, 9000, 12000],
   ath: [6400, 6200, 6600, 7200, 8200, 9600, 10500, 10000, 8600, 7200, 6400, 7800],
   osl: [6000, 5800, 6000, 6600, 7600, 9000, 9800, 9400, 8200, 6800, 5800, 8200],
 };
@@ -57,7 +57,7 @@ export const internalKrugerBrl = 1150;
 
 /** Comida média por pessoa por dia, na moeda local, antes do câmbio. */
 export const foodMidLocal = {
-  cape: 590,
+  cape: 700,
   kruger: 480,
   athens: 58,
   oslo: 720,
@@ -188,7 +188,7 @@ export const routes: Record<
     name: "Cabo e Atenas",
     kicker: "Dois continentes",
     summary:
-      "Uma semana no Cabo e outra em Atenas, com um dia de barco até Hidra. Sem Kruger: o calendário não aguenta os dois.",
+      "Atenas e um dia de barco até Hidra, depois a Cidade do Cabo. Sem Kruger. A volta longa sai da África, o trecho mais curto até Brasília.",
     cities: ["cape", "athens"],
     photo:
       "https://images.unsplash.com/photo-1555993539-1732b0258235?auto=format&fit=crop&w=1600&q=75",
@@ -286,7 +286,7 @@ export const sources: { title: string; url: string; used: string }[] = [
   {
     title: "TravelPriceWatch — refeições na Cidade do Cabo",
     url: "https://www.travelpricewatch.com/cape-town-south-africa/",
-    used: "Outubro de 2026: almoço de menu em torno de ZAR 180, prato de jantar ZAR 190–365. O dia médio do plano soma ZAR 590 por pessoa.",
+    used: "Outubro de 2026: almoço de menu em torno de ZAR 180, prato de jantar ZAR 190–365. O dia médio do plano, alinhado ao Numbeo do mesmo mês, soma ZAR 700 por pessoa.",
   },
   {
     title: "TravelPriceWatch — refeições em Oslo",
@@ -301,7 +301,37 @@ export const sources: { title: string; url: string; used: string }[] = [
   {
     title: "África do Sul — visto para brasileiros",
     url: "https://www.southafrica.net/br/pt/travel/category/o-que-voc%C3%AA-precisa-saber/requerimento-de-visto",
-    used: "Turismo até 90 dias sem visto. Passaporte com 30 dias além da saída e duas páginas em branco. CIV de febre amarela obrigatório para quem sai do Brasil.",
+    used: "Turismo até 90 dias sem visto. O detalhe do passaporte desta página (30 dias) fica atrás da embaixada, que pede três meses.",
+  },
+  {
+    title: "Embaixada em Pretória — entrada de brasileiros",
+    url: "https://www.gov.br/mre/pt-br/embaixada-pretoria/viagens-a-africa-do-sul",
+    used: "Sem visto até 90 dias. Duas páginas em branco e três meses de validade além da entrada. CIV de febre amarela, com a vacina tomada pelo menos 10 a 14 dias antes.",
+  },
+  {
+    title: "SANParks — taxas de conservação 2026/27",
+    url: "https://www.sanparks.org/wp-content/uploads/2026/02/daily_conservation_fees_2026_27.pdf",
+    used: "Kruger, adulto internacional: R 692 por dia, de 1 nov 2026 a 31 out 2027. Brasileiro paga a tarifa internacional, não a da SADC.",
+  },
+  {
+    title: "Skukuza — bangalô de rest camp",
+    url: "https://www.krugerpark.org/Kruger_Park_Camps-travel/pricing-skukuza-restcamp-kruger-park.html",
+    used: "A partir de R 2.220 o quarto na vigência 2026/27. É o piso do chalé na mesa, antes do acréscimo de categoria.",
+  },
+  {
+    title: "Numbeo — comida na Cidade do Cabo",
+    url: "https://www.numbeo.com/cost-of-living/in/Cape-Town",
+    used: "Outubro de 2026: refeição simples R 200, jantar de três pratos para dois R 765. O dia médio da mesa usa R 700 por pessoa.",
+  },
+  {
+    title: "AwardTool — Flying Blue saindo do Brasil",
+    url: "https://www.awardtool.com/programs/air-france-klm-flying-blue/from-brazil",
+    used: "22 set–22 out 2026: GRU–Atenas e GRU–Oslo a partir de 30.000 milhas o trecho, taxa perto de US$ 43. Piso saver. O padrão da mesa continua 100.000.",
+  },
+  {
+    title: "Lufthansa — pisos Brasília–Atenas e Brasília–Oslo",
+    url: "https://www.lufthansa.com/lhg/br/pt/o-d/cy-cy/brasilia-atenas",
+    used: "Ida e volta publicada: Atenas em junho de 2027 a partir de R$ 6.809. Oslo em maio de 2027 a partir de R$ 7.997 e em junho a partir de R$ 8.580. A curva fica acima do piso.",
   },
   {
     title: "Itamaraty — Schengen, EES e ETIAS",

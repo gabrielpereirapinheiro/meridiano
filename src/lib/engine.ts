@@ -125,7 +125,7 @@ function staysOf(route: RouteId, nights: Nights, depart: string): Stay[] {
     route === "cabo"
       ? ["cape", "kruger"]
       : route === "cabo-atenas"
-        ? ["cape", "athens"]
+        ? ["athens", "cape"]
         : ["athens", "oslo"];
   let cursor = addDays(depart, 1);
   const stays: Stay[] = [];
@@ -230,55 +230,53 @@ function buildQuote(
       });
     }
   } else if (route === "cabo-atenas") {
-    const out = flightRtBrl.cpt[departMonth - 1] * ow * people;
+    const capeStart = stays.find((stay) => stay.city === "cape")?.start ?? addDays(window.depart, 6);
+    const out = flightRtBrl.ath[departMonth - 1] * ow * people;
     const connector =
-      capeAthensBaseUsd * capeAthensFactor[monthIndex(stays.find((s) => s.city === "athens")?.start ?? window.ret) - 1] *
-      fx.usdBrl *
-      people;
-    const back = flightRtBrl.ath[returnMonth - 1] * ow * people;
-    const athensStart = stays.find((stay) => stay.city === "athens")?.start ?? addDays(window.depart, 7);
+      capeAthensBaseUsd * capeAthensFactor[monthIndex(capeStart) - 1] * fx.usdBrl * people;
+    const back = flightRtBrl.cpt[returnMonth - 1] * ow * people;
     lines.push({
       id: "voo-1",
-      label: "Brasília → Cidade do Cabo",
+      label: "Brasília → Atenas",
       brl: round(out),
       hint: "Só ida estimada em 62% da ida e volta do mês da saída. Ida avulsa costuma passar da metade.",
     });
     lines.push({
       id: "voo-2",
-      label: "Cidade do Cabo → Atenas",
+      label: "Atenas → Cidade do Cabo",
       brl: round(connector),
       hint: "Uma escala típica em Doha, Adis Abeba ou Istambul. Base de US$ 620 no ombro, ajustada ao mês.",
     });
     lines.push({
       id: "voo-3",
-      label: "Atenas → Brasília",
+      label: "Cidade do Cabo → Brasília",
       brl: round(back),
-      hint: "Só ida estimada em 62% da ida e volta Brasília–Atenas no mês da volta.",
+      hint: "Só ida estimada em 62% da ida e volta Brasília–Cidade do Cabo no mês da volta. É o longo curso mais curto dos dois.",
     });
     legs.push(
       {
         from: "BSB",
-        to: "CPT",
+        to: "ATH",
         depart: window.depart,
-        label: "Brasília → Cidade do Cabo",
+        label: "Brasília → Atenas",
         estimateBrl: round(out),
-        milesEach: prefs.milesAfrica,
+        milesEach: prefs.milesEurope,
       },
       {
-        from: "CPT",
-        to: "ATH",
-        depart: athensStart,
-        label: "Cidade do Cabo → Atenas",
+        from: "ATH",
+        to: "CPT",
+        depart: capeStart,
+        label: "Atenas → Cidade do Cabo",
         estimateBrl: round(connector),
         milesEach: 0,
       },
       {
-        from: "ATH",
+        from: "CPT",
         to: "BSB",
         depart: window.ret,
-        label: "Atenas → Brasília",
+        label: "Cidade do Cabo → Brasília",
         estimateBrl: round(back),
-        milesEach: prefs.milesEurope,
+        milesEach: prefs.milesAfrica,
       },
     );
   } else {
@@ -364,7 +362,7 @@ function buildQuote(
       stay.city === "kruger"
         ? prefs.lodge
           ? "Lodge privado médio, por pessoa, com suplemento de solteiro se viajar só."
-          : "Chalé de parque para o quarto, não por pessoa. ZAR 3.200 é faixa de rest camp, não tarifa de lodge."
+          : "Piso publicado do bangalô de Skukuza, R 2.220 o quarto em 2026/27, com o mesmo acréscimo de categoria dos outros hotéis."
         : `Mediana mensal do quarto duplo, com ${prefs.hotel === "medio" ? "o valor cru da cidade" : prefs.hotel === "bom" ? "+15% de endereço bom" : "+45% de hotel mais folgado"}.`;
     lines.push({
       id: `hotel-${stay.city}`,
@@ -487,9 +485,9 @@ function activityCost(stays: Stay[], people: number): { brl: number; line: Line 
   }
   const kruger = stays.find((stay) => stay.city === "kruger");
   if (kruger) {
-    const value = round((500 * kruger.nights + 900) * fx.zarBrl * people);
+    const value = round((692 * kruger.nights + 1600) * fx.zarBrl * people);
     brl += value;
-    bits.push("Kruger: taxa de conservação e um game drive");
+    bits.push("Kruger: taxa internacional de R 692 por dia e dois game drives");
   }
   if (stays.some((stay) => stay.city === "athens")) {
     brl += round(110 * fx.eurBrl * people);
@@ -590,7 +588,7 @@ function warningsFor(
   if (stays.some((stay) => stay.city === "cape" || stay.city === "kruger")) {
     notes.push({
       level: "ok",
-      text: "Leve o certificado de febre amarela. Sem visto para turismo até 90 dias. Passaporte com 30 dias além da saída e duas páginas livres.",
+      text: "Leve o certificado de febre amarela, com a vacina tomada pelo menos dez a quatorze dias antes. Sem visto para turismo até 90 dias. A embaixada pede passaporte com três meses além da entrada e duas páginas livres.",
     });
   }
   if (stays.some((stay) => stay.city === "athens" || stay.city === "oslo")) {
@@ -842,7 +840,7 @@ function routeCopy(quote: Quote, ritmo: Prefs["ritmo"]) {
   }
   if (quote.route === "cabo-atenas") {
     return [
-      "A ordem é Cabo primeiro e Atenas depois. Você chega no hemisfério sul ainda no clima de primavera ou outono e termina no Mediterrâneo, de onde a volta para Brasília tem mais voo.",
+      "A ordem é Atenas primeiro e Cabo depois. Em outubro a Grécia ainda está mais quente na primeira semana, e a volta longa sai da Cidade do Cabo, o longo curso mais curto até Brasília.",
       "Corte o Kruger desta versão. Quem tenta parque, cidade e Acrópole em quatorze noites passa a viagem em aeroporto.",
       "Hidra é a ilha que cabe: um dia, sem pernoitar. Mykonos e Santorini pedem outra semana.",
     ];
@@ -861,20 +859,20 @@ function malhaCopy(quote: Quote) {
     return [
       "Não existe voo direto de Brasília. O caminho curto costuma ser Brasília–Guarulhos e depois Joanesburgo ou Cidade do Cabo, com LATAM até o Brasil e Airlink ou South African no trecho africano.",
       "Em dinheiro, a Qatar via Doha apareceu com muita frequência como a tarifa mais baixa no Trabber. Ethiopian via Adis Abeba e Turkish via Istambul são as outras malhas que valem abrir. Emirates costuma ir bem no assento e mal no preço.",
-      "Em milhas, o número de planejamento é 70.300 Smiles a ida, GRU–CPT, visto entre setembro e outubro de 2026. No ano móvel até 18 out 2026 também apareceu 61.900. A executiva surgiu a 171.600, em poucas datas. A LATAM é dinâmica: compare no dia, não transfira antes.",
+      "Em milhas, o número de planejamento é 70.300 Smiles a ida, GRU–CPT, visto entre setembro e outubro de 2026. No ano móvel até 18 out 2026 também apareceu 61.900. A executiva surgiu a 171.600, em poucas datas. A LATAM dinâmica mostrou GRU–Joanesburgo a 44.249 o trecho em julho de 2026; a tabela de parceiras, 62.000, não vale para o voo da própria LATAM. Compare no dia e não transfira antes.",
     ];
   }
   if (quote.route === "cabo-atenas") {
     return [
-      "São três bilhetes mentais: Brasília–Cabo, Cabo–Atenas, Atenas–Brasília. Um multi-cidade único às vezes une os dois longos e deixa o miolo de fora. Por isso a mesa soma as pernas e manda você conferir os dois jeitos.",
-      "Cabo–Atenas costuma ter uma escala no Golfo ou na Etiópia. É um dia perdido, não um connection de duas horas.",
-      "Milhas compensam nos dois longos e quase nunca no miolo. Se a Smiles só tiver Europa a 110 mil ou mais, pague Atenas em dinheiro e use milha só na perna africana, que é a mais cara em cash no fim do ano.",
+      "São três bilhetes mentais: Brasília–Atenas, Atenas–Cabo, Cabo–Brasília. Um multi-cidade único às vezes une os dois longos e deixa o miolo de fora. Por isso a mesa soma as pernas e manda você conferir os dois jeitos.",
+      "Atenas–Cabo costuma ter uma escala no Golfo ou na Etiópia. É um dia perdido, não um connection de duas horas.",
+      "Milhas compensam nos dois longos e quase nunca no miolo. O Flying Blue chegou a mostrar 30.000 o trecho para Atenas em setembro de 2026, e isso é piso saver, não promessa para 2027. Se a Smiles só tiver Europa a 110 mil ou mais, pague Atenas em dinheiro e use milha na perna africana.",
     ];
   }
   return [
     "De Brasília, TAP via Lisboa foi a escala mais barata para Oslo no recorte recente do Kayak, e também aparece bem para Atenas. Air France via Paris e a malha Lufthansa/KLM são o plano B quando a TAP sobe.",
     "Atenas–Oslo é voo de manhã na SAS ou na Norwegian. Não gaste milha nele.",
-    "Para a Europa, a Smiles já mostrou Paris a 77.700 saindo de Fortaleza e Amsterdã a 106.100 saindo de Guarulhos. O campo do plano nasce em 100.000 por trecho porque Brasília quase nunca é o aeroporto mais barato do prêmio. A ponte BSB–GRU está separada, para você zerar se achar assento direto.",
+    "Para a Europa, a Smiles já mostrou Paris a 77.700 saindo de Fortaleza e Amsterdã a 106.100 saindo de Guarulhos. O Flying Blue, no outono de 2026, chegou a 30.000 o trecho GRU–Atenas e GRU–Oslo: é o andar de baixo, e junho de 2027 pode não ter esse lugar. O campo do plano nasce em 100.000 por trecho. A ponte BSB–GRU está separada, para você zerar se achar assento direto.",
   ];
 }
 
